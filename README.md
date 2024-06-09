@@ -14,7 +14,7 @@ Run the migration: `drush mim cities_migration`
 Mongo DB
 ========
 1. Install the php-mongoldb extension and add to the php.ini. As I was using ddev for development I had to do it via Dockerfile.
-2. I used mongoDB atlas online tool to import and configure the data. The connection string is Given in the settings file.
+2. I used `mongoDB atlas` online tool to import and configure the data. The connection string is Given in the settings file.
 3. Add the settings to db connection in ddev.settings.php
 4. Install the supported module for mongodb.
 
