@@ -1,0 +1,5 @@
+mongo_migration.add_form:
+  title: 'Add custom migration mongo'
+  route_name: entity.mongo_migration.add_form
+  appears_on:
+    - entity.mongo_migration.collection

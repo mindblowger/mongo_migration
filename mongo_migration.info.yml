@@ -1,0 +1,5 @@
+name: mongo_migration
+type: module
+description: This module provides the facility to migrate Mongo data(JSON) to a custom entity
+package: Custom
+core_version_requirement: ^9 || ^10

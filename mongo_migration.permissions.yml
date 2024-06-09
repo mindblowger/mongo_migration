@@ -1,0 +1,3 @@
+administer mongo migration :
+  title: 'Administer mongo migration settings'
+  restrict access: true

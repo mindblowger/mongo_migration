@@ -1,0 +1,83 @@
+<?php
+
+/**
+ * @file
+ * Provides a custom migration mongo entity type.
+ */
+
+use Drupal\Core\Render\Element;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function mongo_migration_theme() {
+  return [
+    'mongo_migration' => [
+      'render element' => 'elements',
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for custom migration mongo templates.
+ *
+ * Default template: mongo-migration.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the custom migration mongo information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_mongo_migration(array &$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function mongo_migration_user_cancel($edit, UserInterface $account, $method) {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Unpublish custom migration mongos.
+      $storage = \Drupal::entityTypeManager()->getStorage('mongo_migration');
+      $mongo_migration_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->condition('status', 1)
+        ->execute();
+      foreach ($storage->loadMultiple($mongo_migration_ids) as $mongo_migration) {
+        $mongo_migration->set('status', FALSE);
+        $mongo_migration->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Anonymize custom migration mongos.
+      $storage = \Drupal::entityTypeManager()->getStorage('mongo_migration');
+      $mongo_migration_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->execute();
+      foreach ($storage->loadMultiple($mongo_migration_ids) as $mongo_migration) {
+        $mongo_migration->setOwnerId(0);
+        $mongo_migration->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function mongo_migration_user_predelete(UserInterface $account) {
+  // Delete custom migration mongos.
+  $storage = \Drupal::entityTypeManager()->getStorage('mongo_migration');
+  $mongo_migration_ids = $storage->getQuery()
+    ->condition('uid', $account->id())
+    ->execute();
+  $mongo_migrations = $storage->loadMultiple($mongo_migration_ids);
+  $storage->delete($mongo_migrations);
+}
